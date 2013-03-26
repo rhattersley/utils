@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+
+import argparse
+
+import iris
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Summarise/display data using Iris.')
+    parser.add_argument('-d', '--display', action='store_true')
+    parser.add_argument('file_names', nargs='+')
+
+    args = parser.parse_args()
+
+    cubes = iris.load(args.file_names)
+
+    if args.display:
+        import matplotlib.pyplot as plt
+        import iris.quickplot as qplt
+        cube = cubes[0]
+        qplt.contourf(cube)
+        plt.show()
+    else:
+        for cube in cubes:
+            print cube
