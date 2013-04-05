@@ -17,9 +17,27 @@ if __name__ == '__main__':
     if args.display:
         import matplotlib.pyplot as plt
         import iris.quickplot as qplt
-        cube = cubes[0]
-        qplt.contourf(cube)
-        plt.show()
+        for cube in cubes:
+            if cube.ndim > 2:
+                # For higher-dimensional Cubes we try to plot a map.
+                x = cube.coords(axis='X', dim_coords=True)
+                y = cube.coords(axis='Y', dim_coords=True)
+                index = [0] * cube.ndim
+                if len(x) == 1 and len(y) == 1:
+                    xd = cube.coord_dims(x[0])[0]
+                    yd = cube.coord_dims(y[0])[0]
+                    index[xd] = slice(None)
+                    index[yd] = slice(None)
+                else:
+                    index[-1] = slice(None)
+                    index[-2] = slice(None)
+                cube = cube[tuple(index)]
+            qplt.contourf(cube)
+            try:
+                plt.gca().coastlines()
+            except AttributeError:
+                pass
+            plt.show()
     else:
         for cube in cubes:
             print cube
