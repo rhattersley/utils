@@ -8,6 +8,7 @@ import iris
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Summarise/display data using Iris.')
     parser.add_argument('-d', '--display', action='store_true')
+    parser.add_argument('-c', '--coords', action='store_true')
     parser.add_argument('file_names', nargs='+')
 
     args = parser.parse_args()
@@ -41,3 +42,6 @@ if __name__ == '__main__':
     else:
         for cube in cubes:
             print cube
+            if args.coords:
+                for coord in cube.dim_coords:
+                    print coord
