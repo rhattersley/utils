@@ -8,6 +8,7 @@ if (( $NOT_GITHUB )); then
     REF=pull-requests/$PR/from
 else
     REF=pull/$PR/head
+    #REF=pull/$PR/merge
 fi
 
 git fetch upstream $REF

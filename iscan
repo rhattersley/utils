@@ -41,7 +41,7 @@ if __name__ == '__main__':
             plt.show()
     else:
         for cube in cubes:
-            print cube
+            print(cube)
             if args.coords:
                 for coord in cube.dim_coords:
-                    print coord
+                    print(coord)

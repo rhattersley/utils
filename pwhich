@@ -8,34 +8,45 @@ import os
 import subprocess
 
 
+def print_path(path, indent=''):
+    print(indent + '    path:', path)
+    real_path = os.path.realpath(path)
+    if path != real_path:
+        print(indent + '         -> ', real_path)
+
+
 def find(name):
     print('Checking for:', name)
     module = importlib.import_module(name)
     path = module.__file__
-    print('    path:', module.__file__)
-    real_path = os.path.realpath(module.__file__)
-    if path != real_path:
-        print('         -> ', real_path)
-    cwd = os.path.dirname(module.__file__)
-    # Ignore modules stored in egg files
-    if os.path.isdir(cwd):
-        try:
-            output = subprocess.check_output(['git', 'log', '-1', '--decorate',
-                                              '--format=%H %an%+d%+s'], cwd=cwd,
-                                             stderr=subprocess.STDOUT)
-            first, second, third = output.decode('utf-8').split('\n', 2)
-            print('     git:', first)
-            print('        ', second)
-            print('         ', third.strip())
-        except subprocess.CalledProcessError:
-            pass
-    version_names = [name for name in dir(module) if 'version' in name.lower()]
-    if '__version__' in version_names:
-        print(' version:', getattr(module, '__version__'))
-    elif version_names:
-        print('  module:')
-        for name in version_names:
-            print('        ', '{}: {}'.format(name, getattr(module, name)))
+    # Namespace packages only have None.
+    if path is None:
+        print('    Namespace package with paths:')
+        for path in module.__path__:
+            print_path(path, indent='    ')
+    else:
+        print_path(path)
+        cwd = os.path.dirname(path)
+        # Ignore modules stored in egg files
+        if os.path.isdir(cwd):
+            try:
+                output = subprocess.check_output(['git', 'log', '-1', '--decorate',
+                                                  '--format=%H %an%+d%+s'], cwd=cwd,
+                                                 stderr=subprocess.STDOUT)
+                first, second, third = output.decode('utf-8').split('\n', 2)
+                print('     git:', first)
+                print('        ', second)
+                print('         ', third.strip())
+            except subprocess.CalledProcessError:
+                pass
+    version = getattr(module, '__version__', None)
+    if version is not None:
+        print('    __version__:', getattr(module, '__version__'))
+    else:
+        version_names = [name for name in dir(module) if 'version' in name.lower()]
+        if version_names:
+            for name in version_names:
+                print('    {}: {}'.format(name, getattr(module, name)))
 
 
 if __name__ == '__main__':
